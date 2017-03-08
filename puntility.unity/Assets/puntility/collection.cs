@@ -5,7 +5,7 @@ using UnityEngine;
 /// These allow me to use some parts of C# like some parts of Scala
 /// ... someday I'll add a lazy-Stream
 /// </summary>
-/// 
+///
 /// 2016-11-05 ;
 ///		- copied some stuff from quad-fight that was missing
 ///

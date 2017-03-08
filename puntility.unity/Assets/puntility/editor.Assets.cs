@@ -1,4 +1,3 @@
-
 #if UNITY_EDITOR
 /// Peter LaValle / nottingham.ac.uk / gmail.com
 
@@ -13,7 +12,7 @@ using System.IO;
 
 public static class Assets
 {
-	public static void CreateScriptableObjectFile<T>() where T : ScriptableObject
+	public static T CreateScriptableObjectFile<T>() where T : ScriptableObject
 	{
 		var asset = ScriptableObject.CreateInstance<T>();
 
@@ -31,6 +30,8 @@ public static class Assets
 
 		// "TokiZR" from http://answers.unity3d.com/questions/480226/select-asset-for-rename.html
 		ProjectWindowUtil.CreateAsset(asset, assetFolder + "/" + (typeof(T).Name) + ".asset");
+
+		return asset;
 	}
 }
 #endif

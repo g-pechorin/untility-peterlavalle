@@ -15,9 +15,9 @@ public static class vecmath
 	public static Vector3 GetTranslationFromMatrix(this Matrix4x4 matrix)
 	{
 		return new Vector3(
-			matrix.m03,
-			matrix.m13,
-			matrix.m23);
+		           matrix.m03,
+		           matrix.m13,
+		           matrix.m23);
 	}
 
 	/// <summary>
@@ -52,9 +52,9 @@ public static class vecmath
 	public static Vector3 GetScaleFromMatrix(this Matrix4x4 matrix)
 	{
 		return new Vector3(
-			new Vector4(matrix.m00, matrix.m10, matrix.m20, matrix.m30).magnitude,
-			new Vector4(matrix.m01, matrix.m11, matrix.m21, matrix.m31).magnitude,
-			new Vector4(matrix.m02, matrix.m12, matrix.m22, matrix.m32).magnitude);
+		           new Vector4(matrix.m00, matrix.m10, matrix.m20, matrix.m30).magnitude,
+		           new Vector4(matrix.m01, matrix.m11, matrix.m21, matrix.m31).magnitude,
+		           new Vector4(matrix.m02, matrix.m12, matrix.m22, matrix.m32).magnitude);
 	}
 
 	/// <summary>

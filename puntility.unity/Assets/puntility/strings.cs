@@ -1,7 +1,7 @@
 /// Peter LaValle / nottingham.ac.uk / gmail.com
-/// 
+///
 /// Extension methods for string(s)
-/// 
+///
 /// 2017-02-11 ;
 ///		- head-stubstring
 /// 2016-11-05 ;

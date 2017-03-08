@@ -160,6 +160,13 @@ public static class collection
 		return head;
 	}
 
+	public static T RandomElement<T>(this IEnumerable<T> input, System.Random random)
+	{
+		var array = input.ToArrayCopy();
+
+		return array[random.Next() % array.Length];
+	}
+
 	public static IEnumerable<T> RandomOrder<T>(this IEnumerable<T> input)
 	{
 		var array = input.ToArrayCopy();

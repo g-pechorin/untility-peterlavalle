@@ -5,9 +5,6 @@ It's probably only of interest to people trying to use something else that I wro
 
 # Installation
 
-Just clone it somewhere into your Assets/ folder
+Import the [puntility unity package](puntility.unitypackage) file
 
-# Updating
 
-See how you cloned it?
-Just pull any updates from the source repository

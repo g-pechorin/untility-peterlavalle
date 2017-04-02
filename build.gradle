@@ -1,0 +1,12 @@
+
+def rootFolder = file('./')
+
+subprojects {
+	apply plugin: 'peterlavalle.untility'
+
+	puntility {
+		target = rootFolder
+	}
+}
+
+defaultTasks 'unityExport'

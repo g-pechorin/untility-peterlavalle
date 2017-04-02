@@ -1,0 +1,6 @@
+
+def target = file('./')
+subprojects {
+	apply plugin: 'peterlavalle.untility'
+}
+

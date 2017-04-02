@@ -1,0 +1,31 @@
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'groovy'
+
+compileGroovy.dependsOn compileScala
+
+repositories {
+    mavenCentral()
+}
+
+compileGroovy.dependsOn(compileScala)
+
+def scalaFlavour = '2.11'
+def scalaVersion = "${scalaFlavour}.8"
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile "org.scala-lang:scala-library:${scalaVersion}"
+
+    // https://mvnrepository.com/artifact/junit/junit
+    testCompile 'junit:junit:4.12'
+
+    testCompile "org.scalatest:scalatest_${scalaFlavour}:3.0.1"
+}
+
+
+
+
+

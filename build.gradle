@@ -3,9 +3,11 @@ def rootFolder = file('./')
 
 subprojects {
 	apply plugin: 'peterlavalle.untility'
+}
 
-	puntility {
-		target = rootFolder
+project(':input-property.unity') {
+	unity {
+		link project(':puntility.unity')
 	}
 }
 

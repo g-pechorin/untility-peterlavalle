@@ -10,6 +10,12 @@ class Config {
   @BeanProperty
   var owner: Project = null
 
+  /**
+    * Unity won't import if there are compiler errors ... even when those errors would be fixed by an import
+    */
+  @BeanProperty
+  var batchMode: Boolean = false
+
   val links = new util.LinkedList[AnyRef]()
 
   def setLink(other: Project): Unit = {

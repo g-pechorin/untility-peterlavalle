@@ -21,11 +21,24 @@ trait TUnityTask extends DefaultTask {
     getProject.getExtensions.findByName("unity").asInstanceOf[Config]
 
   def invoke(commands: Iterable[AnyRef]): Unit = {
-    val actual =
-      List(unityEditor.AbsolutePath, "-batchmode", "-projectPath", getProject.getProjectDir.AbsolutePath) ++ commands.map {
+
+    val actualCommand =
+      if (config.batchMode)
+        List(unityEditor.AbsolutePath, "-batchmode")
+      else
+        List(unityEditor.AbsolutePath, "-nographics")
+
+    val actualProject =
+      List("-projectPath", getProject.getProjectDir.AbsolutePath)
+
+    val actualCommands =
+      commands.map {
         case string: String => string
         case file: File => file.AbsolutePath
-      } ++ List("-quit")
+      }
+
+    val actual =
+      actualCommand ++ actualProject ++ actualCommands ++ List("-quit")
 
     getProject.getBuildDir.shell(new Feedback("unity:"))(actual: _ *) match {
       case 0 => ;

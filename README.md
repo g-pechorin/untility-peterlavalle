@@ -1,10 +1,11 @@
 
-This is my sprawling pile of extension methods for Unity.
+This is a "mee too" code dump of extension methods and utility classes for Unity.
 
-It's probably only of interest to people trying to use something else that I wrote.
+## [puntility](puntility.unitypackage) 
 
-# Installation
+A bunch of extension methods that I'm fond of.
+Also has a nice class to make ScriptedObject asset creation easier.
 
-Import the [puntility unity package](puntility.unitypackage) file
+## [input-property](input-property.unitypackage) 
 
-
+It's a neat class for controls.

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class Flooring : MonoBehaviour
 {
   public GameObject rootFloor;
-
+  public int span = 2;
   private HashSet<string> activated = new HashSet<string>();
   private Vector3 extents;
 
@@ -13,10 +13,7 @@ public class Flooring : MonoBehaviour
     activated.Clear();
     extents = rootFloor.GetComponent<Renderer>().bounds.extents;
 
-    if (rootFloor.activeInHierarchy)
-      activated.Add("0,0");
-    else
-      Touch(0, 0);
+    activated.Add("0,0");
   }
 
   void Update()
@@ -27,7 +24,9 @@ public class Flooring : MonoBehaviour
     var i = Mathf.FloorToInt((x * 0.5f) + 0.5f);
     var j = Mathf.FloorToInt((y * 0.5f) + 0.5f);
 
-    Touch(i, j);
+    for (var a = -span; a <= span; ++a)
+      for (var b = -span; b <= span; ++b)
+        Touch(i + a, j + b);
   }
 
   void Touch(int i, int j)
@@ -37,7 +36,10 @@ public class Flooring : MonoBehaviour
     if (activated.Contains(id))
       return;
 
-    Instantiate(rootFloor).transform.position += new Vector3(2 * i * extents.x, 0, 2 * j * extents.z);
+    var tile = Instantiate(rootFloor);
+
+    tile.name += id;
+    tile.transform.position += new Vector3(2 * i * extents.x, 0, 2 * j * extents.z);
     activated.Add(id);
   }
 }

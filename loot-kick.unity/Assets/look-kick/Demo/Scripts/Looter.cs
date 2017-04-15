@@ -7,9 +7,12 @@ using System.Collections;
 public class Looter : MonoBehaviour
 {
   const float speed = 3.14f;
+  const float sprint = 19.83f;
 
   void Update()
   {
-    transform.position += new Vector3(Input.GetAxis("Horizontal") * speed * Time.deltaTime, 0, Input.GetAxis("Vertical") * speed * Time.deltaTime);
+    var step = (Input.GetButton("Jump") ? sprint : speed) * Time.deltaTime;
+
+    transform.position += new Vector3(Input.GetAxis("Horizontal") * step, 0, Input.GetAxis("Vertical") * step);
   }
 }

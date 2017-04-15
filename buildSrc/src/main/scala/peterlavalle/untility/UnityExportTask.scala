@@ -37,6 +37,7 @@ class UnityExportTask extends TUnityTask {
       s"Couldn't find the meta-file for ${name}"
     )
     */
+
     val assets =
       (assetDirectory **)
         .filterNot(_.endsWith(".meta"))

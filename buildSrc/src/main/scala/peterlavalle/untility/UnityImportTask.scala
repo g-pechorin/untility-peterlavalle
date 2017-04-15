@@ -7,9 +7,8 @@ import org.gradle.api.tasks.TaskAction
 import peterlavalle.OverWriter
 
 class UnityImportTask extends TUnityTask {
-
   @TaskAction
-  def action(): Unit = {
+  def action(): Unit =
     config.links.foreach {
       case link: Project =>
 
@@ -36,6 +35,4 @@ class UnityImportTask extends TUnityTask {
         // TODO ; somehow, import the packages even if they're needed
         invoke(List("-importPackage", link.findTask[UnityExportTask].unityPackage))
     }
-  }
-
 }

@@ -14,7 +14,7 @@ class Config {
     * Unity won't import if there are compiler errors ... even when those errors would be fixed by an import
     */
   @BeanProperty
-  var batchMode: Boolean = false
+  var batchMode: Boolean = true
 
   val links = new util.LinkedList[AnyRef]()
 

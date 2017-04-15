@@ -10,6 +10,4 @@ import scala.reflect.ClassTag
   */
 trait TPackage extends peterlavalle.TPackage {
 
-  lazy val osName: String =
-    System.getProperty("os.name").split("[^\\w]")(0).toLowerCase
 }

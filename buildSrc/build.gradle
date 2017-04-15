@@ -6,6 +6,9 @@ compileGroovy.dependsOn compileScala
 
 repositories {
     mavenCentral()
+    maven {
+        url "http://peterlavalle.com/m2-repo/"
+    }
 }
 
 compileGroovy.dependsOn(compileScala)
@@ -18,14 +21,10 @@ dependencies {
     compile localGroovy()
 
     compile "org.scala-lang:scala-library:${scalaVersion}"
+    compile "com.peterlavalle:peterlavalle_${scalaFlavour}:2017.04.03"
 
     // https://mvnrepository.com/artifact/junit/junit
     testCompile 'junit:junit:4.12'
 
     testCompile "org.scalatest:scalatest_${scalaFlavour}:3.0.1"
 }
-
-
-
-
-

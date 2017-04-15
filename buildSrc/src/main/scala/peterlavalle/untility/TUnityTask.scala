@@ -20,7 +20,7 @@ trait TUnityTask extends DefaultTask {
   def config: Config =
     getProject.getExtensions.findByName("unity").asInstanceOf[Config]
 
-  def invoke(commands: Iterable[AnyRef]): Unit = {
+  def invoke(commands: Iterable[AnyRef]): Int = {
 
     val actualCommand =
       if (config.batchMode)
@@ -40,13 +40,22 @@ trait TUnityTask extends DefaultTask {
     val actual =
       actualCommand ++ actualProject ++ actualCommands ++ List("-quit")
 
-    getProject.getBuildDir.shell(new Feedback("unity:"))(actual: _ *) match {
-      case 0 => ;
-      case ret =>
-        new OverWriter(getProject.getBuildDir / "failed.bat")
-          .appund(actual.map('\"' + _ + '\"').reduce(_ + ' ' + _))
-          .close()
-        actual.foldLeft(s"I did `$ret`")(_ + "\n  " + _) halt
-    }
+    require("windows" == osName)
+    val script =
+      new OverWriter(getProject.getBuildDir / s"${getProject.getName}-${actual.hashCode()}.bat")
+        .appund("@ECHO OFF\r\n")
+        .appund(actual.map {
+          next: String =>
+            require(!next.contains("\r"))
+            require(!next.contains("\t"))
+            if (next.contains(' ') || next.contains('\t')) {
+              require(!next.contains("\""))
+              '"' + next + "\" "
+            } else
+              next
+        }.reduce(_ + ' ' + _))
+        .closeFile.getAbsolutePath
+
+    getProject.getBuildDir.shell(new Feedback("unity:"))(script)
   }
 }

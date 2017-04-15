@@ -31,10 +31,17 @@ class UnityExportTask extends TUnityTask {
 
     val unityPackage = getProject.getRootDir / s"$name.unitypackage"
 
+    if (unityPackage.exists())
+      require(unityPackage.delete(), "Delete command failed")
+
+    require(!unityPackage.exists(), "Delete command didn't work")
+
     // https://forum.unity3d.com/threads/exportpackage-command-line-in-unity-3-5-7.210480/
     invoke(
-      List("-exportPackage" )++ assets ++ List(unityPackage.AbsolutePath)
+      List("-exportPackage") ++ assets ++ List(unityPackage.AbsolutePath)
     )
+
+    require(unityPackage.exists(), "Package wasn't created")
 
     unityPackage
   }

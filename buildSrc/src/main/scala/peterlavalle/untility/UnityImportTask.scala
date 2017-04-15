@@ -13,6 +13,8 @@ class UnityImportTask extends TUnityTask {
     config.links.foreach {
       case link: Project =>
 
+        // TODO ; somehow, strip out the old stuff
+        /*
         // delete the old contents
         require(
           (getProject.getProjectDir / "Assets" / link.unityName).unlink,
@@ -28,8 +30,10 @@ class UnityImportTask extends TUnityTask {
             .closeFile.exists(),
           s"Failed to ignore all in `${(getProject.getProjectDir / "Assets" / link.unityName).AbsolutePath}/`"
         )
+        */
 
         // use unity to import package
+        // TODO ; somehow, import the packages even if they're needed
         invoke(List("-importPackage", link.findTask[UnityExportTask].unityPackage))
     }
   }

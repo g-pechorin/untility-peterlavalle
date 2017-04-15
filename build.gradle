@@ -11,10 +11,4 @@ project(':input-property.unity') {
 	}
 }
 
-project(':loot-kick.unity') {
-	unity {
-		link project(':puntility.unity')
-	}
-}
-
 defaultTasks 'unityExport'

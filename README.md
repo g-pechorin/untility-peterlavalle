@@ -7,6 +7,7 @@ This is ...
 ... obviously, the later needs more-work.
 
 ## Contents
+
 ### [puntility](puntility.unitypackage) 
 
 A bunch of extension methods that I'm fond of.
@@ -19,6 +20,10 @@ It's a neat class for controls.
 You get a drop-down in the inspector, and a `struct` with RO properties in `C#`
 
 (It relies upon the `puntility` package)
+
+### [loot-table](loot-table.unitypackage)
+
+A [ScriptableObject](https://docs.unity3d.com/510/Documentation/ScriptReference/ScriptableObject.html) demonstrating [a sort of loot-table](loot-table.unity/Assets/loot-table/Scripts/LootTable.cs) for spawning [loot items](loot-table.unity/Assets/loot-table/Scripts/LootItem.cs) with a [demonstration](loot-table.unity/Assets/loot-table/).
 
 ## Adding a new project
 

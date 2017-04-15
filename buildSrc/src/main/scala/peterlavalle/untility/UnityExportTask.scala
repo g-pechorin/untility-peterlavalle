@@ -21,7 +21,6 @@ class UnityExportTask extends TUnityTask {
     val name = getProject.unityName
     val assetDirectory = (getProject.getProjectDir / "Assets" / s"$name").getAbsoluteFile
 
-    /*
     require(
       assetDirectory.exists(),
       s"Couldn't find an asset folder named $name\n\t${assetDirectory.AbsolutePath}"
@@ -36,7 +35,6 @@ class UnityExportTask extends TUnityTask {
       (getProject.getProjectDir / "Assets" / s"$name.meta").isFile,
       s"Couldn't find the meta-file for ${name}"
     )
-    */
 
     val assets =
       (assetDirectory **)

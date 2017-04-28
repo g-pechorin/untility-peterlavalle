@@ -10,4 +10,16 @@ import scala.reflect.ClassTag
   */
 trait TPackage extends peterlavalle.TPackage {
 
+  import scala.language.implicitConversions
+
+  implicit def wrapProject(project: Project): TWrappedProject =
+    new TWrappedProject {
+      override val value: Project = project
+    }
+
+  trait TWrappedProject extends peterlavalle.padle.TWrappedProject {
+    def unityName = value.getName.replaceAll("\\.unity$", "")
+  }
+
+
 }

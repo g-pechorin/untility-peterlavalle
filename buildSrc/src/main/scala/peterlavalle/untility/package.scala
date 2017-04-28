@@ -11,16 +11,6 @@ import scala.reflect.ClassTag
 
 package object untility extends peterlavalle.padle.TPackage {
 
-  implicit def wrapProject(project: Project): TWrappedProject =
-    new TWrappedProject {
-      override val value: Project = project
-    }
-
-  trait TWrappedProject extends peterlavalle.padle.TWrappedProject {
-    def unityName = value.getName.replaceAll("\\.unity$", "")
-  }
-
-
 
 
   implicit def wrapFile2(file: File): TWrappedFile2 =

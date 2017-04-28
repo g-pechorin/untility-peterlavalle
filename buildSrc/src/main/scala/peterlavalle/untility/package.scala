@@ -32,23 +32,8 @@ package object untility extends peterlavalle.padle.TPackage {
       }
 
 
-    def shall(commands: Iterable[Any]): Int = {
 
-      def recu(todo: Stream[Any]): List[String] =
-        todo match {
-          case (head: String) #:: tail =>
-            head :: recu(tail)
-          case (file: File) #:: tail =>
-            file.AbsolutePath :: recu(tail)
-          case (stream: Stream[_]) #:: tail =>
-            recu(stream) ++ recu(tail)
-          case Empty =>
-            Nil
-        }
 
-      value.shell(
-        new Feedback(new NotImplementedError().getStackTrace.tail.tail.toString))(recu(commands.toStream): _ *)
-    }
   }
 
 }

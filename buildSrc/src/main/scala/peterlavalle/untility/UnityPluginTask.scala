@@ -15,8 +15,8 @@ class UnityPluginTask extends TUnityTask {
   def monoCompiler: File =
     osName match {
       case "windows" =>
-        // unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
-        unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
+        unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
+      //unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
     }
 
   def dllUnityEngine: File =
@@ -53,12 +53,12 @@ class UnityPluginTask extends TUnityTask {
     val unityName: String = getProject.unityName
 
     val dllPlugin =
-      tempProject / s"Assets/$unityName/$unityName.Plugin.dll"
+      tempProject / s"Assets/$unityName/Plugin/$unityName.Plugin.dll"
 
     require(dllPlugin.getParentFile.exists() || dllPlugin.getParentFile.mkdirs())
 
-    // compile our code into DLLs
-    getProject.getBuildDir.shall(
+    // compile our Plugin code into DLLs
+    shellScript(
       List(
         s"${'"' + monoCompiler.getAbsolutePath + '"'}",
         s"-r:${'"' + dllUnityEngine.AbsolutePath + '"'}",
@@ -71,16 +71,15 @@ class UnityPluginTask extends TUnityTask {
 
         s"-out:${'"' + dllPlugin.AbsolutePath + '"'}"
       )
-    )
+    ) match {
+      case 0 => ;
+    }
 
-    dllPlugin.AbsolutePath halt
+    s"Done ; ${dllPlugin.AbsolutePath}" halt
 
-    (getProject.getProjectDir ** ".*\\.cs")
-      .filter(_.startsWith(s"Assets/$unityName/"))
-      .filterNot(_.contains("/Editor/"))
-      .foldLeft("found:")(_ + "\n  >" + _ + "<") halt
 
-    "compile our code into DLLs" halt
+    // compile our Editor code into DLLs
+    "compile our Editor code into DLLs" halt
 
     // copy our assets
     "copy our assets" halt

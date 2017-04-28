@@ -5,9 +5,38 @@ import java.io.File
 import org.gradle.api.DefaultTask
 import peterlavalle.{Feedback, OverWriter}
 
+import scala.collection.immutable.Stream.Empty
+
 trait TUnityTask extends DefaultTask {
 
   setGroup("untility")
+
+  def shellScript(commands: Iterable[Any]): Int = {
+
+    def recu(todo: Stream[Any]): List[String] =
+      todo match {
+        case (head: String) #:: tail =>
+          head :: recu(tail)
+        case (file: File) #:: tail =>
+          file.AbsolutePath :: recu(tail)
+        case (stream: Stream[_]) #:: tail =>
+          recu(stream) ++ recu(tail)
+        case Empty =>
+          Nil
+      }
+
+    getProject.getBuildDir.shell(new Feedback(s"$getName; "))(
+      osName match {
+        case "windows" =>
+          new OverWriter(File.createTempFile("script-", ".bat"))
+            .appund("@ECHO OFF\r\n")
+            .appund("\r\n")
+            .appund(recu(commands.toStream).reduce(_ + " " + _))
+            .appund("\r\n")
+            .closeFile.AbsolutePath
+      }
+    )
+  }
 
   lazy val unityHome: File =
     (for (version <- List("/5.1.4f1", "/5.6.0f3", ""); folder <- List("Program Files (x86)", "Program Files"); drive <- 'A' to 'Z')

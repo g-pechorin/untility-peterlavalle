@@ -1,16 +1,12 @@
+
 package peterlavalle
 
-import java.io.{File, FileReader, Writer}
+import java.io.File
 
-import org.gradle.api.Project
-import org.gradle.api.internal.AbstractTask
-
-import scala.beans.BeanProperty
+import scala.collection.immutable.Stream.Empty
 import scala.languageFeature.implicitConversions._
-import scala.reflect.ClassTag
 
 package object untility extends peterlavalle.padle.TPackage {
-
 
 
   implicit def wrapFile2(file: File): TWrappedFile2 =
@@ -23,6 +19,7 @@ package object untility extends peterlavalle.padle.TPackage {
 
   sealed trait TWrappedFile2 {
     val value: File
+
     def unlink: Boolean =
       (!value.exists()) || {
         require(value.isDirectory)
@@ -33,5 +30,25 @@ package object untility extends peterlavalle.padle.TPackage {
         }
         value.delete()
       }
+
+
+    def shall(commands: Iterable[Any]): Int = {
+
+      def recu(todo: Stream[Any]): List[String] =
+        todo match {
+          case (head: String) #:: tail =>
+            head :: recu(tail)
+          case (file: File) #:: tail =>
+            file.AbsolutePath :: recu(tail)
+          case (stream: Stream[_]) #:: tail =>
+            recu(stream) ++ recu(tail)
+          case Empty =>
+            Nil
+        }
+
+      value.shell(
+        new Feedback(new NotImplementedError().getStackTrace.tail.tail.toString))(recu(commands.toStream): _ *)
+    }
   }
+
 }

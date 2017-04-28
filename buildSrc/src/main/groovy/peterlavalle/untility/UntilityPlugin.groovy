@@ -14,6 +14,8 @@ class UntilityPlugin implements Plugin<Project> {
 
         def unityImport = project.task('unityImport', type: UnityImportTask)
 
+        def unityPlugin = project.task('unityPlugin', type: UnityPluginTask)
+
         unityExport.dependsOn(unityImport)
     }
 }

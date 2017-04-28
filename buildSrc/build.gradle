@@ -14,14 +14,14 @@ repositories {
 compileGroovy.dependsOn(compileScala)
 
 def scalaFlavour = '2.11'
-def scalaVersion = "${scalaFlavour}.8"
+def scalaVersion = "${scalaFlavour}.9"
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
 
     compile "org.scala-lang:scala-library:${scalaVersion}"
-    compile "com.peterlavalle:peterlavalle_${scalaFlavour}:2017.04.11"
+    compile "com.peterlavalle:peterlavalle_${scalaFlavour}:2017.04.23"
 
     // https://mvnrepository.com/artifact/junit/junit
     testCompile 'junit:junit:4.12'

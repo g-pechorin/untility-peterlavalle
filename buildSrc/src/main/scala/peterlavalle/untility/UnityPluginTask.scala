@@ -7,6 +7,7 @@ import java.nio.file.Files
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
+import scala.beans.BeanProperty
 import scala.collection.JavaConversions._
 
 class UnityPluginTask extends TUnityTask {
@@ -14,12 +15,30 @@ class UnityPluginTask extends TUnityTask {
   lazy val tempProject: File =
     File.createTempFile(getName, ".unity", getProject.getBuildDir)
 
-  def monoCompiler: File =
+  @BeanProperty
+  var monoCompiler: File =
     osName match {
       case "windows" =>
-        unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
-      //unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
+        //unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
+        unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
+      // unityHome / "Editor/Data/Mono/lib/mono/2.0/gmcs"
     }
+
+  @BeanProperty
+  var monoOptions: Array[String] =
+    Array(
+      /*s"-r:${
+        '"' + (osName match {
+          case "windows" =>
+            (unityHome / "Editor/Data/Mono/lib/mono/2.0/mscorlib.dll").AbsolutePath
+        }) + '"'
+      }",
+      */
+      "-optimize",
+      // "-nostdlib",
+      "-target:library"
+    )
+
 
   def dllUnityEngine: File =
     osName match {
@@ -34,7 +53,7 @@ class UnityPluginTask extends TUnityTask {
     }
 
   @TaskAction
-  def action(): Unit = {
+  def action(): File = {
     require(tempProject.exists() && tempProject.delete() && tempProject.mkdirs())
 
     // copy our project settings
@@ -76,7 +95,8 @@ class UnityPluginTask extends TUnityTask {
           link =>
             "Link the project plugin.DLL"
         },
-        "-target:library",
+
+        monoOptions.toStream,
 
         (getProject.getProjectDir ** ".*\\.cs")
           .filter(_.startsWith(s"Assets/$unityName/"))
@@ -108,7 +128,8 @@ class UnityPluginTask extends TUnityTask {
           link =>
             "Link the project editor.DLL"
         },
-        "-target:library",
+
+        monoOptions.toStream,
 
         (getProject.getProjectDir ** ".*\\.cs")
           .filter(_.startsWith(s"Assets/$unityName/"))
@@ -138,6 +159,27 @@ class UnityPluginTask extends TUnityTask {
       }
 
     // perform the final export
-    "perform the final export" halt
+
+    val assets =
+      (tempProject **)
+        .filterNot(_.endsWith(".meta"))
+        .filterNot(_.matches("(^|(.*/))(Demo|Test)/.*"))
+        .filter(_.startsWith(s"Assets/$unityName/"))
+
+    val unityPackage = getProject.getRootDir / s"$unityName.unitypackage"
+
+    if (unityPackage.exists())
+      require(unityPackage.delete(), "Delete command failed")
+
+    require(!unityPackage.exists(), "Delete command didn't work")
+
+    // https://forum.unity3d.com/threads/exportpackage-command-line-in-unity-3-5-7.210480/
+    invoke(tempProject,
+      List("-exportPackage") ++ assets ++ List(unityPackage.AbsolutePath)
+    )
+
+    require(unityPackage.exists(), "Package wasn't created")
+
+    unityPackage
   }
 }

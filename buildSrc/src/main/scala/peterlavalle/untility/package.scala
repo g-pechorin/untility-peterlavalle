@@ -5,8 +5,15 @@ import java.io.File
 
 import scala.collection.immutable.Stream.Empty
 import scala.languageFeature.implicitConversions._
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe._
 
 package object untility extends peterlavalle.padle.TPackage {
+
+  implicit def requyre[E <: Exception](condition: Boolean, messsage: => String)(implicit tag: ClassTag[E]): Unit = {
+    if (!condition)
+      throw tag.runtimeClass.getConstructor(classOf[String]).newInstance(messsage).asInstanceOf[E]
+  }
 
 
   implicit def wrapFile2(file: File): TWrappedFile2 =
@@ -20,9 +27,12 @@ package object untility extends peterlavalle.padle.TPackage {
   sealed trait TWrappedFile2 {
     val value: File
 
-    def unlink: Boolean =
+    def unlink(): Boolean =
       (!value.exists()) || {
-        require(value.isDirectory)
+        requyre[Exception](
+          value.isDirectory,
+          s"Tried to unlink non-dir ${value.AbsolutePath}"
+        )
 
         (value **).foreach {
           path =>
@@ -30,8 +40,6 @@ package object untility extends peterlavalle.padle.TPackage {
         }
         value.delete()
       }
-
-
 
 
   }

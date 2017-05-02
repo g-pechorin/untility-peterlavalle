@@ -4,7 +4,7 @@ package peterlavalle.untility
 import java.io.File
 import java.nio.file.Files
 
-import org.gradle.api.Project
+import org.gradle.api.{GradleException, Project}
 import org.gradle.api.tasks.TaskAction
 
 import scala.beans.BeanProperty
@@ -12,16 +12,25 @@ import scala.collection.JavaConversions._
 
 class UnityPluginTask extends TUnityTask {
 
-  lazy val tempProject: File =
-    File.createTempFile(getName, ".unity", getProject.getBuildDir)
+  lazy val tempProject: File = {
+    require(getProject.getBuildDir.exists() || getProject.getBuildDir.mkdirs())
+    val tempProject = File.createTempFile(getName, ".unity", getProject.getBuildDir)
+    requyre[GradleException](
+      tempProject.exists() && tempProject.delete() && tempProject.mkdirs(),
+      "Error when trying to create tempProject's folder"
+    )
+    tempProject
+  }
+
+  val unityName: String = getProject.unityName
 
   @BeanProperty
   var monoCompiler: File =
     osName match {
       case "windows" =>
-        //unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
-        unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
-      // unityHome / "Editor/Data/Mono/lib/mono/2.0/gmcs"
+        unityHome / "Editor/Data/MonoBleedingEdge/lib/mono/4.5/mcs.exe"
+      //unityHome / "Editor/Data/MonoBleedingEdge/bin/mcs.bat"
+      //unityHome / "Editor/Data/Mono/lib/mono/2.0/gmcs"
     }
 
   @BeanProperty
@@ -40,108 +49,122 @@ class UnityPluginTask extends TUnityTask {
     )
 
 
-  def dllUnityEngine: File =
-    osName match {
-      case "windows" =>
-        unityHome / "Editor/Data/Managed/UnityEngine.dll"
-    }
-
-  def dllUnityEditor: File =
-    osName match {
-      case "windows" =>
-        unityHome / "Editor/Data/Managed/UnityEditor.dll"
-    }
-
   @TaskAction
-  def action(): File = {
-    require(tempProject.exists() && tempProject.delete() && tempProject.mkdirs())
+  def action(): Unit =
+    require(
+      unityPackage.exists()
+    )
+
+  lazy val unityPackage: File = {
 
     // copy our project settings
-    (getProject.getProjectDir **)
-      .filter(_.startsWith("ProjectSettings/"))
+    requyre[GradleException]((tempProject / "ProjectSettings").mkdirs(), "Failed to create ProjectSettings/ folder")
+    (getProject.getProjectDir ** "^ProjectSettings/.*")
       .foreach {
         setting =>
           Files.copy(
-            (getProject.getProjectDir / setting).toPath, {
-              val output = tempProject / setting
-              require(output.getParentFile.exists() || output.getParentFile.mkdirs())
-              output.toPath
-            }
+            (getProject.getProjectDir / setting).toPath,
+            (tempProject / setting).toPath
           )
       }
+
+    requyre[GradleException]((tempProject / "Assets").mkdirs(), "Failed to create Assets/ folder")
 
     // import any/all "other" projects
     config.links.foreach {
       case link: Project =>
         invoke(
-          tempProject, List("-importPackage", link.findTask[UnityExportTask].unityPackage)
+          tempProject, List("-importPackage", link.findTask[UnityPluginTask].unityPackage)
         ) match {
           case 0 => ;
         }
     }
 
-    val unityName: String = getProject.unityName
-
+    // collect source
+    val csSource: Stream[String] =
+      (getProject.getProjectDir ** ".*\\.cs")
+        .filter(_.startsWith(s"Assets/$unityName/"))
+        .filterNot(_.matches("(^|(.*/))(Demo|Test)/.*"))
 
     // compile our Plugin code into a DLL
-    val dllPlugin = tempProject / s"Assets/$unityName/Plugin/$unityName.Plugin.dll"
-    require(dllPlugin.getParentFile.exists() || dllPlugin.getParentFile.mkdirs())
-
-    shellScript(
-      List(
-        s"${'"' + monoCompiler.getAbsolutePath + '"'}",
-        s"-r:${'"' + dllUnityEngine.AbsolutePath + '"'}",
-        config.links.toStream.map {
-          link =>
-            "Link the project plugin.DLL"
-        },
-
-        monoOptions.toStream,
-
-        (getProject.getProjectDir ** ".*\\.cs")
-          .filter(_.startsWith(s"Assets/$unityName/"))
-          .filterNot(_.matches("(^|(.*/))(Demo|Test)/.*"))
-          .filterNot(_.contains("/Editor/"))
-          .map(getProject.getProjectDir / _),
-
-        s"-out:${'"' + dllPlugin.AbsolutePath + '"'}"
-      )
-    ) match {
-      case 0 => ;
+    val dllProjectPlugin: File = {
+      System.err.println("TODO ; make this into a task")
+      tempProject / s"Assets/$unityName/Plugin/$unityName.Plugin.dll"
     }
+    require(dllProjectPlugin.getParentFile.exists() || dllProjectPlugin.getParentFile.mkdirs())
+
+
+    val csSourcePlugin: Stream[File] =
+      csSource
+        .filterNot(_.contains("/Editor/"))
+        .map(getProject.getProjectDir / _)
+
+    if (csSourcePlugin.isEmpty)
+      ???
+    else
+      shellScript(s"$unityName - compile plugin.dll")(
+        List(
+          s"${'"' + monoCompiler.getAbsolutePath + '"'}",
+          s"-r:${'"' + dllUnityEngine.AbsolutePath + '"'}",
+
+          (tempProject / "Assets" ** ".*\\.dll")
+            .filterNot(_.contains("/Editor/"))
+            .map(tempProject / _)
+            .map {
+              file: File =>
+                s"-r:${'"' + file.AbsolutePath + '"'}"
+            },
+
+          monoOptions.toStream,
+
+          csSource
+            .filterNot(_.contains("/Editor/"))
+            .map(getProject.getProjectDir / _),
+
+          s"-out:${'"' + dllProjectPlugin.AbsolutePath + '"'}"
+        )
+      ) match {
+        case 0 => ;
+      }
 
     // compile our Editor code into a DLL
-    val dllEditor = tempProject / s"Assets/$unityName/Editor/$unityName.Editor.dll"
-    require(dllEditor.getParentFile.exists() || dllEditor.getParentFile.mkdirs())
-
-    shellScript(
-      List(
-        s"${'"' + monoCompiler.getAbsolutePath + '"'}",
-        s"-r:${'"' + dllUnityEngine.AbsolutePath + '"'}",
-        s"-r:${'"' + dllUnityEditor.AbsolutePath + '"'}",
-        s"-r:${'"' + dllPlugin.AbsolutePath + '"'}",
-        config.links.toStream.map {
-          link =>
-            "Link the project plugin.DLL"
-        },
-        config.links.toStream.map {
-          link =>
-            "Link the project editor.DLL"
-        },
-
-        monoOptions.toStream,
-
-        (getProject.getProjectDir ** ".*\\.cs")
-          .filter(_.startsWith(s"Assets/$unityName/"))
-          .filterNot(_.matches("(^|(.*/))(Demo|Test)/.*"))
-          .filter(_.contains("/Editor/"))
-          .map(getProject.getProjectDir / _),
-
-        s"-out:${'"' + dllEditor.AbsolutePath + '"'}"
-      )
-    ) match {
-      case 0 => ;
+    val dllProjectEditor: File = {
+      System.err.println("TODO ; make this into a task")
+      tempProject / s"Assets/$unityName/Editor/$unityName.Editor.dll"
     }
+    require(dllProjectEditor.getParentFile.exists() || dllProjectEditor.getParentFile.mkdirs())
+
+    val csSourceEditor: Stream[File] =
+      csSource
+        .filter(_.contains("/Editor/"))
+        .map(getProject.getProjectDir / _)
+
+    if (csSourceEditor.isEmpty)
+      ???
+    else
+      shellScript(s"$unityName - compile editor.dll")(
+        List(
+          s"${'"' + monoCompiler.getAbsolutePath + '"'}",
+          s"-r:${'"' + dllUnityEngine.AbsolutePath + '"'}",
+          s"-r:${'"' + dllUnityEditor.AbsolutePath + '"'}",
+          s"-r:${'"' + dllProjectPlugin.AbsolutePath + '"'}",
+
+          (tempProject / "Assets" ** ".*\\.dll")
+            .map(tempProject / _)
+            .map {
+              file: File =>
+                s"-r:${'"' + file.AbsolutePath + '"'}"
+            },
+
+          monoOptions.toStream,
+
+          csSourceEditor,
+
+          s"-out:${'"' + dllProjectEditor.AbsolutePath + '"'}"
+        )
+      ) match {
+        case 0 => ;
+      }
 
     // copy our assets
     (getProject.getProjectDir **)

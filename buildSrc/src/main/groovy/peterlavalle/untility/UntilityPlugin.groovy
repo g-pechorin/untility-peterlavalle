@@ -10,12 +10,12 @@ class UntilityPlugin implements Plugin<Project> {
 
         unity.owner = project
 
-        def unityExport = project.task('unityExport', type: UnityExportTask)
+        //    def unityExport = project.task('unityExport', type: UnityExportTask)
 
-        def unityImport = project.task('unityImport', type: UnityImportTask)
+        //   def unityImport = project.task('unityImport', type: UnityImportTask)
 
         def unityPlugin = project.task('unityPlugin', type: UnityPluginTask)
 
-        unityExport.dependsOn(unityImport)
+       // unityExport.dependsOn(unityImport)
     }
 }

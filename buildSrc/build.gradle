@@ -23,6 +23,8 @@ dependencies {
     compile "org.scala-lang:scala-library:${scalaVersion}"
     compile "com.peterlavalle:peterlavalle_${scalaFlavour}:2017.04.23"
 
+    compile "org.scala-lang:scala-reflect:${scalaVersion}"
+
     // https://mvnrepository.com/artifact/junit/junit
     testCompile 'junit:junit:4.12'
 

@@ -11,7 +11,23 @@ trait TUnityTask extends DefaultTask {
 
   setGroup("untility")
 
-  def shellScript(commands: Iterable[Any]): Int = {
+
+  def dllUnityEngine: File =
+    osName match {
+      case "windows" =>
+        unityHome / "Editor/Data/Managed/UnityEngine.dll"
+    }
+
+  def dllUnityEditor: File =
+    osName match {
+      case "windows" =>
+        unityHome / "Editor/Data/Managed/UnityEditor.dll"
+    }
+
+  def shellScript(commands: Iterable[Any]): Int =
+    shellScript(getName)(commands)
+
+  def shellScript(shellName: String)(commands: Iterable[Any]): Int = {
 
     def recu(todo: Stream[Any]): List[String] =
       todo match {
@@ -25,7 +41,7 @@ trait TUnityTask extends DefaultTask {
           Nil
       }
 
-    getProject.getBuildDir.shell(new Feedback(s"$getName; "))(
+    getProject.getBuildDir.shell(new Feedback(s"$shellName; "))(
       osName match {
         case "windows" =>
           new OverWriter(File.createTempFile("script-", ".bat"))

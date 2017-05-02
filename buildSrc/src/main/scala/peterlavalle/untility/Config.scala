@@ -21,7 +21,7 @@ class Config {
   def setLink(other: Project): Unit = {
 
     // I depend on youuuuuu ...
-    owner.findTask[UnityImportTask].dependsOn(other.findTask[UnityExportTask])
+    owner.findTask[UnityPluginTask].dependsOn(other.findTask[UnityPluginTask])
 
     links.add(other)
   }

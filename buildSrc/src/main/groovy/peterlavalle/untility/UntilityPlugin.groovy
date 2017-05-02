@@ -10,12 +10,48 @@ class UntilityPlugin implements Plugin<Project> {
 
         unity.owner = project
 
-        //    def unityExport = project.task('unityExport', type: UnityExportTask)
+        def untiMakeSpace =
+                project.task(
+                        'untiMakeSpace',
+                        type: UntiMakeSpaceTask
+                )
 
-        //   def unityImport = project.task('unityImport', type: UnityImportTask)
+        def untiImport =
+                project.task(
+                        'untiImport',
+                        type: UntiImportTask,
+                        dependsOn: untiMakeSpace
+                )
 
-        def unityPlugin = project.task('unityPlugin', type: UnityPluginTask)
+        def untiAssemblePlugin =
+                project.task(
+                        'untiAssemblePlugin',
+                        type: UntiAssemblePluginTask,
+                        dependsOn: untiImport
+                )
 
-       // unityExport.dependsOn(unityImport)
+        def untiAssembleEditor =
+                project.task(
+                        'untiAssembleEditor',
+                        type: UntiAssembleEditorTask,
+                        dependsOn: untiAssemblePlugin
+                )
+
+        def untiAssembleAssets =
+                project.task(
+                        'untiAssembleAssets',
+                        type: UntiAssembleAssetsTask,
+                        dependsOn: untiMakeSpace
+                )
+
+        project.task(
+                'untiPackage',
+                type: UntiPackageTask,
+                dependsOn: [
+                        untiAssembleAssets,
+                        untiAssembleEditor,
+                        untiAssemblePlugin,
+                ]
+        )
     }
 }

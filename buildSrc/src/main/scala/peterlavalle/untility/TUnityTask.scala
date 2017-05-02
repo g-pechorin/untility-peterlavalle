@@ -3,48 +3,62 @@ package peterlavalle.untility
 import java.io.File
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.internal.AbstractTask
 import peterlavalle.{Feedback, OverWriter}
 
 import scala.collection.immutable.Stream.Empty
+import scala.reflect.ClassTag
 
 trait TUnityTask extends DefaultTask {
-
-  setGroup("untility")
-
 
   def dllUnityEngine: File =
     osName match {
       case "windows" =>
-        unityHome / "Editor/Data/Managed/UnityEngine.dll"
+        config.unityHome / "Editor/Data/Managed/UnityEngine.dll"
     }
 
   def dllUnityEditor: File =
     osName match {
       case "windows" =>
-        unityHome / "Editor/Data/Managed/UnityEditor.dll"
+        config.unityHome / "Editor/Data/Managed/UnityEditor.dll"
     }
+
+  lazy val unityEditor: File =
+    osName match {
+      case "windows" =>
+        config.unityHome / "Editor/Unity.exe"
+    }
+
+  val unityName: String = getProject.unityName
+
+  def task[T <: AbstractTask](implicit classTag: ClassTag[T]): T =
+    getProject.findTask(classTag)
+
+  setGroup("untility")
 
   def shellScript(commands: Iterable[Any]): Int =
     shellScript(getName)(commands)
 
-  def shellScript(shellName: String)(commands: Iterable[Any]): Int = {
+  def shellScript(shellName: String)(commands: Iterable[Any]): Int =
+    shellScript(shellName, getProject.getBuildDir)(commands)
 
-    def recu(todo: Stream[Any]): List[String] =
-      todo match {
-        case (head: String) #:: tail =>
-          head :: recu(tail)
-        case (file: File) #:: tail =>
-          file.AbsolutePath :: recu(tail)
-        case (stream: Stream[_]) #:: tail =>
-          recu(stream) ++ recu(tail)
-        case Empty =>
-          Nil
-      }
-
-    getProject.getBuildDir.shell(new Feedback(s"$shellName; "))(
+  def shellScript(shellName: String, workingDir: File)(commands: Iterable[Any]): Int =
+    workingDir.shell(new Feedback(s"$shellName; "))(
       osName match {
         case "windows" =>
-          new OverWriter(File.createTempFile("script-", ".bat"))
+          def recu(todo: Stream[Any]): List[String] =
+            todo match {
+              case (head: String) #:: tail =>
+                head :: recu(tail)
+              case (file: File) #:: tail =>
+                file.AbsolutePath :: recu(tail)
+              case (stream: Stream[_]) #:: tail =>
+                recu(stream) ++ recu(tail)
+              case Empty =>
+                Nil
+            }
+
+          new OverWriter(File.createTempFile("script-", ".bat", getProject.getBuildDir))
             .appund("@ECHO OFF\r\n")
             .appund("\r\n")
             .appund(recu(commands.toStream).reduce(_ + " " + _))
@@ -52,20 +66,6 @@ trait TUnityTask extends DefaultTask {
             .closeFile.AbsolutePath
       }
     )
-  }
-
-  lazy val unityHome: File =
-    (for (version <- List("/5.1.4f1", "/5.6.0f3", ""); folder <- List("Program Files (x86)", "Program Files"); drive <- 'A' to 'Z')
-      yield new File(s"$drive:/$folder/Unity$version"))
-      .find { home: File => (home / "Editor/Unity.exe").exists() } match {
-      case Some(file: File) => file
-    }
-
-  lazy val unityEditor: File =
-    osName match {
-      case "windows" =>
-        unityHome / "Editor/Unity.exe"
-    }
 
   def config: Config =
     getProject.getExtensions.findByName("unity").asInstanceOf[Config]
@@ -109,6 +109,6 @@ trait TUnityTask extends DefaultTask {
         }.reduce(_ + ' ' + _))
         .closeFile.getAbsolutePath
 
-    getProject.getBuildDir.shell(new Feedback("unity:"))(script)
+    projectDir.shell(new Feedback("unity:"))(script)
   }
 }

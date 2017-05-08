@@ -27,7 +27,10 @@ class UntiPackageTask extends TUnityTask {
 
     requyre[GradleException](!unityPackage.delete(), s"Delete `$unityName.unitypackage` failed")
 
-    val assets = makeSpace ** "^Assets/.*"
+    val assets =
+      (makeSpace ** "^Assets/.*")
+        .filterNot(_.endsWith(".meta"))
+        .filter(_.startsWith(s"Assets/$unityName/"))
 
     // https://forum.unity3d.com/threads/exportpackage-command-line-in-unity-3-5-7.210480/
     invoke(

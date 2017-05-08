@@ -3,10 +3,8 @@ package peterlavalle
 
 import java.io.File
 
-import scala.collection.immutable.Stream.Empty
 import scala.languageFeature.implicitConversions._
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
 
 package object untility extends peterlavalle.padle.TPackage {
 
@@ -14,7 +12,6 @@ package object untility extends peterlavalle.padle.TPackage {
     if (!condition)
       throw tag.runtimeClass.getConstructor(classOf[String]).newInstance(messsage).asInstanceOf[E]
   }
-
 
   implicit def wrapFile2(file: File): TWrappedFile2 =
     if (file != file.getAbsoluteFile)
@@ -28,20 +25,12 @@ package object untility extends peterlavalle.padle.TPackage {
     val value: File
 
     def unlink(): Boolean =
-      (!value.exists()) || {
-        requyre[Exception](
-          value.isDirectory,
-          s"Tried to unlink non-dir ${value.AbsolutePath}"
+      (!value.exists()) || (
+        if (value.isDirectory)
+          value.listFiles().foldLeft(true)((v, f) => f.unlink() && v) && value.delete()
+        else
+          value.delete()
         )
-
-        (value **).foreach {
-          path =>
-            require((value / path).delete())
-        }
-        value.delete()
-      }
-
-
   }
 
 }

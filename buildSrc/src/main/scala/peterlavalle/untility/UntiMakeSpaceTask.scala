@@ -25,12 +25,13 @@ class UntiMakeSpaceTask extends TUnityTask {
     require(getProject.getBuildDir.exists() || getProject.getBuildDir.mkdirs())
     val makeSpace = getProject.getBuildDir / s"unit-${getProject.getName}"
 
-    requyre[GradleException](
-      if (makeSpace.exists())
-        makeSpace.delete() && makeSpace.mkdirs()
-      else
-        makeSpace.mkdirs(),
-      "Error when trying to create makeSpace's folder"
+    if (makeSpace.exists())
+      requyre[GradleException](
+        makeSpace.unlink(),
+        s"Error deleting ${makeSpace.AbsolutePath}"
+      )
+    requyre[GradleException](makeSpace.mkdirs(),
+      s"Error when trying to create ${makeSpace.AbsolutePath}"
     )
 
     // copy our project settings

@@ -23,9 +23,13 @@ class UntiMakeSpaceTask extends TUnityTask {
 
   lazy val makeSpace: File = {
     require(getProject.getBuildDir.exists() || getProject.getBuildDir.mkdirs())
-    val makeSpace = File.createTempFile(getName, ".unity", getProject.getBuildDir)
+    val makeSpace = getProject.getBuildDir / s"unit-${getProject.getName}"
+
     requyre[GradleException](
-      makeSpace.exists() && makeSpace.delete() && makeSpace.mkdirs(),
+      if (makeSpace.exists())
+        makeSpace.delete() && makeSpace.mkdirs()
+      else
+        makeSpace.mkdirs(),
       "Error when trying to create makeSpace's folder"
     )
 

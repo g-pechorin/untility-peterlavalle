@@ -7,6 +7,10 @@ class UntiAssembleEditorTask extends TUntiDLLTask {
   override val label: String = "Editor"
 
   override def dllReferences: Stream[File] =
-    dllUnityEditor #:: task[UntiAssemblePluginTask].dllAssembly #:: super.dllReferences
-
+    task[UntiAssemblePluginTask].dllAssembly match {
+      case None =>
+        super.dllReferences
+      case Some(plugin) =>
+        dllUnityEditor #:: plugin #:: super.dllReferences
+    }
 }

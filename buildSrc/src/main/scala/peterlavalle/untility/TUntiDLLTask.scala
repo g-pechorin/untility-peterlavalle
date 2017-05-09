@@ -19,9 +19,12 @@ trait TUntiDLLTask extends TUnityTask {
       .map(getProject.getProjectDir / _)
 
   @TaskAction
-  def action() =
+  def action(): Unit =
     require(
-      dllAssembly.exists()
+      dllAssembly match {
+        case null => false
+        case _ => true
+      }
     )
 
   def dllReferences: Stream[File] =
@@ -29,7 +32,7 @@ trait TUntiDLLTask extends TUnityTask {
       .filterNot(_.startsWith(s"Assets/$unityName/"))
       .map(task[UntiMakeSpaceTask].makeSpace / _)
 
-  lazy val dllAssembly: File = {
+  lazy val dllAssembly: Option[File] = {
 
     val workSpace = task[UntiMakeSpaceTask].makeSpace
     val dllAssembly = workSpace / s"Assets/$unityName/$label/$unityName.$label.dll"
@@ -44,13 +47,8 @@ trait TUntiDLLTask extends TUnityTask {
       "Couldn't create parent-dir for .cs assembly"
     )
 
-    requyre[GradleException](
-      csSources.nonEmpty,
-      "Need some .cs - soz"
-    )
-
     if (csSources.isEmpty)
-      ???
+      None
     else
       shellScript(s"$unityName - compile $label's .dll")(
         List(
@@ -70,7 +68,10 @@ trait TUntiDLLTask extends TUnityTask {
           s"-out:${'"' + dllAssembly.AbsolutePath + '"'}"
         )
       ) match {
-        case 0 => dllAssembly
+        case 0 =>
+          Some(
+            dllAssembly
+          )
       }
   }
 }

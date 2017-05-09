@@ -2,10 +2,12 @@ package peterlavalle.untility
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION
 
 class UntilityPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
+
         def unity = project.extensions.create('unity', Config)
 
         unity.owner = project
@@ -44,14 +46,37 @@ class UntilityPlugin implements Plugin<Project> {
                         dependsOn: untiMakeSpace
                 )
 
-        project.task(
-                'untiPackage',
-                type: UntiPackageTask,
-                dependsOn: [
-                        untiAssembleAssets,
-                        untiAssembleEditor,
-                        untiAssemblePlugin,
-                ]
-        )
+        def untiPackage =
+                project.task(
+                        'untiPackage',
+                        type: UntiPackageTask,
+                        dependsOn: [
+                                untiAssembleAssets,
+                                untiAssembleEditor,
+                                untiAssemblePlugin,
+                        ]
+                )
+        project.configure(project) {
+
+            apply plugin: 'base'
+
+            artifacts {
+                unityPackage {
+
+                }
+            }
+/*
+            apply plugin: 'scala'
+            apply plugin: 'maven-publish'
+
+            artifacts {
+                archives(untiPackage.outputs) {
+                    name 'unityPackage'
+                    type 'unityPackage'
+                    builtBy untiPackage
+                }
+            }
+          */
+        }
     }
 }

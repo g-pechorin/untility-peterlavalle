@@ -1,17 +1,43 @@
 package peterlavalle.untility
 
 import java.io.File
+import java.util.Date
 
 import org.gradle.api.GradleException
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.artifacts.PublishArtifact
+import org.gradle.api.internal.GradleInternal
+import org.gradle.api.tasks.{TaskAction, TaskDependency}
+import org.gradle.initialization.BuildRequestMetaData
+
+import scala.beans.BeanProperty
 
 /**
   * Assembles the final .unitypackage
   */
-class UntiPackageTask extends TUnityTask {
+class UntiPackageTask extends TUnityTask with PublishArtifact {
   setDescription(
     "Assembles the final .unitypackage"
   )
+
+
+  override def getType: String = "unitypackage"
+
+  override def getDate: Date = {
+    new Date(
+      getProject.getGradle.asInstanceOf[GradleInternal].getServices.get[BuildRequestMetaData](classOf[BuildRequestMetaData]).getBuildTimeClock.getStartTime
+    )
+  }
+
+  override def getExtension: String = "unitypackage"
+
+  override def getClassifier: String = "unitypackage"
+
+
+  @BeanProperty
+  val file: File = getProject.getRootDir / s"$unityName.unitypackage"
+
+  override def getBuildDependencies: TaskDependency =
+    this.getTaskDependencies
 
   @TaskAction
   def action(): Unit =

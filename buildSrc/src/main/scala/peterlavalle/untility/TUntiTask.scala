@@ -9,7 +9,7 @@ import peterlavalle.{Feedback, OverWriter}
 import scala.collection.immutable.Stream.Empty
 import scala.reflect.ClassTag
 
-trait TUnityTask extends DefaultTask {
+trait TUntiTask extends DefaultTask {
 
   def dllUnityEngine: File =
     osName match {
@@ -34,7 +34,7 @@ trait TUnityTask extends DefaultTask {
   def task[T <: AbstractTask](implicit classTag: ClassTag[T]): T =
     getProject.findTask(classTag)
 
-  setGroup("untility")
+  setGroup("unti")
 
   def shellScript(commands: Iterable[Any]): Int =
     shellScript(getName)(commands)

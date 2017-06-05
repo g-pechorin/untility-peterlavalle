@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 /**
   * Assembles the final .unitypackage
   */
-class UntiPackageTask extends TUnityTask {
+class UntiPackageTask extends TUntiTask {
   setDescription(
     "Assembles the final .unitypackage"
   )

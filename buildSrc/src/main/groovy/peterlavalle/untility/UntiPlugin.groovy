@@ -3,7 +3,7 @@ package peterlavalle.untility
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class UntilityPlugin implements Plugin<Project> {
+class UntiPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         def unity = project.extensions.create('unity', Config)
@@ -44,14 +44,29 @@ class UntilityPlugin implements Plugin<Project> {
                         dependsOn: untiMakeSpace
                 )
 
+        def untiPackage =
+                project.task(
+                        'untiPackage',
+                        type: UntiPackageTask,
+                        dependsOn: [
+                                untiAssembleAssets,
+                                untiAssembleEditor,
+                                untiAssemblePlugin,
+                        ]
+                )
+
         project.task(
-                'untiPackage',
-                type: UntiPackageTask,
+                'unti',
                 dependsOn: [
-                        untiAssembleAssets,
-                        untiAssembleEditor,
+                        untiMakeSpace,
+                        untiImport,
                         untiAssemblePlugin,
+                        untiAssembleEditor,
+                        untiAssembleAssets,
+                        untiPackage,
                 ]
-        )
+        ) {
+            group = 'unti'
+        }
     }
 }

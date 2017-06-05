@@ -5,7 +5,7 @@ import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
-trait TUntiDLLTask extends TUnityTask {
+trait TUntiDLLTask extends TUntiTask {
   val csFilter: String => Boolean
 
   val label: String

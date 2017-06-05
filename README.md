@@ -2,9 +2,21 @@
 This is ...
 
 * a "mee too" code dump of extension methods and utility classes for Unity
-* a gradle setup to export packages and rebuild/reimport dependencies
+* **unit** a gradle setup to export packages and rebuild/reimport dependencies
 
 ... obviously, the later needs more-work.
+
+## unti
+
+
+### Adding a new project
+
+1. add it to `settings.gradle`
+1. add a (properly named) folder
+1. create a Unity3D project in that folder
+1. edit `build.gradle` to do dependencies
+
+
 
 ## Contents
 
@@ -25,9 +37,3 @@ You get a drop-down in the inspector, and a `struct` with RO properties in `C#`
 
 A [ScriptableObject](https://docs.unity3d.com/510/Documentation/ScriptReference/ScriptableObject.html) demonstrating [a sort of loot-table](loot-table.unity/Assets/loot-table/Scripts/LootTable.cs) for spawning [loot items](loot-table.unity/Assets/loot-table/Scripts/LootItem.cs) with a [demonstration](loot-table.unity/Assets/loot-table/).
 
-## Adding a new project
-
-1. add it to `settings.gradle`
-1. add a (properly named) folder
-1. create a Unity3D project in that folder
-1. edit `build.gradle` to do dependencies

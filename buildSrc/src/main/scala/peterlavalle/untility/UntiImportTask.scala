@@ -4,7 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 import scala.collection.JavaConversions._
 
-class UntiImportTask extends TUnityTask {
+class UntiImportTask extends TUntiTask {
   @TaskAction
   def action(): Unit =
     // import any/all "other" projects

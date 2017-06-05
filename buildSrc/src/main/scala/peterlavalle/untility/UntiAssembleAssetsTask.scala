@@ -2,7 +2,7 @@ package peterlavalle.untility
 
 import org.gradle.api.tasks.TaskAction
 
-class UntiAssembleAssetsTask extends TUnityTask {
+class UntiAssembleAssetsTask extends TUntiTask {
 
   setDescription("Copy (non code) assets into workspace")
 

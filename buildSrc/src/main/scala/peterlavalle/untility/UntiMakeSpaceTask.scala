@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
   *
   * From experience, the 'only' reliable way to reproducibly import a pile of stuff is into a blank project
   */
-class UntiMakeSpaceTask extends TUnityTask {
+class UntiMakeSpaceTask extends TUntiTask {
 
   setDescription("Generates an empty Unity workspace and copies in `ProjectSettings/`")
 

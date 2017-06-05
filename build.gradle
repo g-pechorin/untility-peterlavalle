@@ -2,7 +2,7 @@
 def rootFolder = file('./')
 
 subprojects {
-	apply plugin: 'peterlavalle.untility'
+	apply plugin: 'peterlavalle.unti'
 }
 
 project(':input-property.unity') {

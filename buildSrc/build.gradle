@@ -2,6 +2,9 @@ apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'groovy'
 
+group = 'peterlavalle'
+version = '2017.06.05'
+
 compileGroovy.dependsOn compileScala
 
 repositories {

@@ -1,5 +1,8 @@
 package peterlavalle.untility
 
+/**
+  * I needed to learn (and remind myself) how `yield` worked
+  */
 object YieldThing extends App {
   for (
     version <- List("/5.1.4f1", "/5.6.0f3", "");

@@ -1,27 +1,17 @@
+
 package peterlavalle
 
-import java.io.{File, FileReader, Writer}
+import java.io.File
 
-import org.gradle.api.Project
-import org.gradle.api.internal.AbstractTask
-
-import scala.beans.BeanProperty
 import scala.languageFeature.implicitConversions._
 import scala.reflect.ClassTag
 
 package object untility extends peterlavalle.padle.TPackage {
 
-  implicit def wrapProject(project: Project): TWrappedProject =
-    new TWrappedProject {
-      override val value: Project = project
-    }
-
-  trait TWrappedProject extends peterlavalle.padle.TWrappedProject {
-    def unityName = value.getName.replaceAll("\\.unity$", "")
+  implicit def requyre[E <: Exception](condition: Boolean, messsage: => String)(implicit tag: ClassTag[E]): Unit = {
+    if (!condition)
+      throw tag.runtimeClass.getConstructor(classOf[String]).newInstance(messsage).asInstanceOf[E]
   }
-
-
-
 
   implicit def wrapFile2(file: File): TWrappedFile2 =
     if (file != file.getAbsoluteFile)
@@ -33,15 +23,14 @@ package object untility extends peterlavalle.padle.TPackage {
 
   sealed trait TWrappedFile2 {
     val value: File
-    def unlink: Boolean =
-      (!value.exists()) || {
-        require(value.isDirectory)
 
-        (value **).foreach {
-          path =>
-            require((value / path).delete())
-        }
-        value.delete()
-      }
+    def unlink(): Boolean =
+      (!value.exists()) || (
+        if (value.isDirectory)
+          value.listFiles().foldLeft(true)((v, f) => f.unlink() && v) && value.delete()
+        else
+          value.delete()
+        )
   }
+
 }

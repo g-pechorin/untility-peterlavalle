@@ -1,0 +1,14 @@
+
+def rootFolder = file('./')
+
+subprojects {
+	apply plugin: 'peterlavalle.unti'
+}
+
+project(':input-property.unity') {
+	unity {
+		link project(':puntility.unity')
+	}
+}
+
+defaultTasks 'unityExport'
